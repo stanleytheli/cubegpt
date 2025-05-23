@@ -2,19 +2,31 @@ import torch
 import json
 import numpy as np
 
-solved_string = "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY"
+#solved_string = "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY"
 
-f = open("../lookup_tables/cube_utils.json", "r")
+# 0: W
+# 1: O
+# 2: G
+# 3: R
+# 4: B
+# 5: Y
+
+solved_tuple = (0,)*9 + (1,)*9 + (2,)*9 + (3,)*9 + (4,)*9 + (5,)*9
+
+f = open("../lookup_tables/cube_tuple_utils.json", "r")
 tables = json.load(f)
 f.close()
 
 pos_idx = eval(tables["pos_idx"])
 pos_face_idx = eval(tables["pos_face_idx"])
-color_str_tensor_idx = tables["color_str_tensor_idx"]
-color_str_orientation = tables["color_str_orientation"]
+color_tuple_tensor_idx = eval(tables["color_tuple_tensor_idx"])
+color_tuple_orientation = eval(tables["color_tuple_orientation"])
 move_map = tables["move_map"]
 
-def string_to_tokens(cube_string):
+def get_colors_tuple_by_pos(cube_tuple, position):
+    return tuple(cube_tuple[i] for i in pos_face_idx[position])
+
+def tuple_to_tokens(cube_tuple):
     tokens_tensor = torch.zeros((20, 2), dtype=torch.int32)
 
     orien_idx_to_token = {
@@ -30,11 +42,11 @@ def string_to_tokens(cube_string):
     corner_orientations = 3
 
     for pos, position_idx in pos_idx.items():
-        color_str = get_colors_str_by_pos(cube_string, pos)
-        is_edge = len(color_str) == 2
+        color_tuple = get_colors_tuple_by_pos(cube_tuple, pos)
+        is_edge = len(color_tuple) == 2
         
-        piece_idx = color_str_tensor_idx[color_str]
-        orientation_idx = color_str_orientation[color_str]
+        piece_idx = color_tuple_tensor_idx[color_tuple]
+        orientation_idx = color_tuple_orientation[color_tuple]
 
         if is_edge:
             placement_token = position_idx * edge_orientations + orientation_idx
@@ -48,15 +60,15 @@ def string_to_tokens(cube_string):
 
     return tokens_tensor
 
-def string_to_tensor(cube_string):
+def tuple_to_tensor(cube_tuple):
     cube_tensor = torch.zeros((20, 14), dtype=torch.float32)
     
     for pos, pos_value in pos_idx.items():
-        color_str = get_colors_str_by_pos(cube_string, pos) 
-        is_edge = len(color_str) == 2
+        color_tuple = get_colors_tuple_by_pos(cube_tuple, pos) 
+        is_edge = len(color_tuple) == 2
 
-        tensor_idx = color_str_tensor_idx[color_str]
-        orientation_value = color_str_orientation[color_str] 
+        tensor_idx = color_tuple_tensor_idx[color_tuple]
+        orientation_value = color_tuple_orientation[color_tuple] 
 
         cube_tensor[tensor_idx][pos_value] = 1
         if is_edge:
@@ -67,9 +79,9 @@ def string_to_tensor(cube_string):
     return cube_tensor
 
 
-def rotate_string(cube_str, move=None):
-    """Fast rotate function for cube strings."""    
-    return "".join([cube_str[i] for i in move_map[move]])
+def rotate_tuple(cube_tuple, move=None):
+    """Fast rotate function for cube tuples."""    
+    return tuple(cube_tuple[i] for i in move_map[move])
     
 class CubeState:
     # moves[move_class][move_type]
@@ -84,13 +96,13 @@ class CubeState:
         [["F", "F'", "F2"], ["B", "B'", "B2"]],
              ]
 
-    def __init__(self, cube_string : str = solved_string,
+    def __init__(self, cube_tuple : str = solved_tuple,
                  prev_state = None,
                  prev_move = None,
                  prev_move_class = None,
                  prev_move_type = None
                  ):
-        self.cube_string = cube_string
+        self.cube_tuple = cube_tuple
         self.prev_state = prev_state
         self.prev_move = prev_move
         self.prev_move_class = prev_move_class
@@ -101,10 +113,10 @@ class CubeState:
             self.prev2_move_class = prev_state.prev_move_class
     
     def get_tensor(self):
-        return string_to_tensor(self.cube_string)
+        return tuple_to_tensor(self.cube_tuple)
     
     def get_tokens(self):
-        return string_to_tokens(self.cube_string)
+        return tuple_to_tokens(self.cube_tuple)
 
     def get_allowed_moves(self):
         # (move_class, move_type, move_index)
@@ -127,7 +139,7 @@ class CubeState:
         """Get child state with given move_class, move_type, and move_index"""
         move = CubeState.moves[move_class][move_type][move_index]
         return CubeState(
-            cube_string=rotate_string(self.cube_string, move),
+            cube_tuple=rotate_tuple(self.cube_tuple, move),
             prev_state=self,
             prev_move=move,
             prev_move_class=move_class,
@@ -156,29 +168,26 @@ def generate_states(depth, starting_state = CubeState()):
 def all_children(states : list[CubeState], cache : set):
     children = []
     for state in states:
-        if state.cube_string in cache:
+        if state.cube_tuple in cache:
             continue
         else:
-            cache.add(state.cube_string)
+            cache.add(state.cube_tuple)
             children += state.get_children()
     return children
 
-def get_colors_str_by_pos(cube_string, position):
-    return "".join([cube_string[i] for i in pos_face_idx[position]])
-
 def all_states_pairs(depth, starting_state = CubeState()) -> list[tuple[CubeState, int]]:
     states_pairs = [(starting_state, 0)]
-    cache = set((starting_state.cube_string))
+    cache = set((starting_state.cube_tuple))
 
     for (state, i) in states_pairs:
         if i >= depth:
             continue
         new_states = state.get_children()
         for new_state in new_states:
-            if new_state.cube_string in cache:
+            if new_state.cube_tuple in cache:
                 continue
             else:
-                cache.add(new_state.cube_string)
+                cache.add(new_state.cube_tuple)
                 states_pairs.append((new_state, i + 1))
         
     return states_pairs
