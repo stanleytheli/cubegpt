@@ -120,7 +120,7 @@ class Arcball:
         ynorm = 2 * y / height
 
         # projection onto circle of radius 1
-        rotation_strength = 4
+        rotation_strength = 3
         xnorm = np.sqrt(1/2) * np.tanh(rotation_strength * xnorm)
         ynorm = np.sqrt(1/2) * np.tanh(rotation_strength * ynorm)
 
@@ -128,11 +128,13 @@ class Arcball:
         znorm = np.sqrt(1 - xnorm ** 2 - ynorm ** 2)
         return np.array([xnorm, ynorm, znorm])
 
-    def get_matrix(original_pos, new_pos):
-        """Compute rotation matrix from original and new mouse position tuples"""
-        # get vectors on radius 1 sphere 
-        v1 = Arcball.get_arcball_vec(original_pos)
-        w1 = Arcball.get_arcball_vec(new_pos)
+    def rotation_matrix(a, b):
+        """Compute the 3d rotation matrix R such that aR = b.
+        Since there are multiple rotation matrices that could do this,
+        R is chosen so that all rotation is in the direction of (a cross b)"""
+        # first basis vectors
+        v1 = normalized(np.array(a))
+        w1 = normalized(np.array(b))
 
         # calculate second basis vectors
         delta = w1 - v1
@@ -161,10 +163,18 @@ class Arcball:
         R = np.array([ip, jp, kp])
         return R
 
+
+    def get_matrix(original_pos, new_pos):
+        """Compute rotation matrix from original and new mouse position tuples"""
+        # get vectors on radius 1 sphere 
+        v1 = Arcball.get_arcball_vec(original_pos)
+        w1 = Arcball.get_arcball_vec(new_pos)
+        return Arcball.rotation_matrix(v1, w1)
+
 def add_cube(triangles, pos, r, colors):
     """Adds a cube to the triangles list.
     Args:
-        triangles: a list of triangles
+        triangles: the list of triangles to append to
         p: position tuple
         r: half of the side length
         colors: list of Colors applied in UD FB LR order"""
@@ -231,16 +241,22 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        R = Arcball.get_matrix((width // 2, height // 2), (width // 2, height // 2 - 10))
+        R = Arcball.rotation_matrix((0, 0, 1), (0, -0.05, 1))
         transform(R)
     if keys[pygame.K_s]:
-        R = Arcball.get_matrix((width // 2, height // 2), (width // 2, height // 2 + 10))
+        R = Arcball.rotation_matrix((0, 0, 1), (0, 0.05, 1))
         transform(R)
     if keys[pygame.K_a]:
-        R = Arcball.get_matrix((width // 2, height // 2), (width // 2 - 10, height // 2))
+        R = Arcball.rotation_matrix((0, 0, 1), (-0.05, 0, 1))
         transform(R)
     if keys[pygame.K_d]:
-        R = Arcball.get_matrix((width // 2, height // 2), (width // 2 + 10, height // 2))
+        R = Arcball.rotation_matrix((0, 0, 1), (0.05, 0, 1))
+        transform(R)
+    if keys[pygame.K_q]:
+        R = Arcball.rotation_matrix((1, 0, 0), (1, -0.05, 0))
+        transform(R)
+    if keys[pygame.K_e]:
+        R = Arcball.rotation_matrix((1, 0, 0), (1, 0.05, 0))
         transform(R)
 
     if dragging:
