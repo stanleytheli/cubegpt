@@ -74,7 +74,7 @@ class Triangle:
             color: an RGB color tuple"""
         self.points_list = points # for cloning
 
-        self.points = [] # list of Point objects
+        self.points : list[Point] = [] # list of Point objects
         for coord_tuple in points:
             self.points.append(Point(coord_tuple))
         
@@ -111,7 +111,7 @@ class Triangle:
         return sum([point.z for point in self.points]) / 3
 
     def clone(self):
-        return Triangle(self.points_list, self.color, self.flipNormal)
+        return Triangle([point.pos for point in self.points], self.color, self.flipNormal)
 
 class Cube:
     def __init__(self, pos, r, colors):
@@ -223,7 +223,7 @@ class Arcball:
         return Arcball.rotation_matrix(v1, w1)
 
 objects = [
-    Cube((0, 0, 0), 75, 
+    Cube((100, 0, 0), 75, 
          [Color.WHITE,
           Color.YELLOW,
           Color.GREEN,
