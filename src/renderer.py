@@ -14,7 +14,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("3D Rendering")
 
 # z_0 controls the FOV. The camera is positioned at (0, 0, z_0) and looks toward (0, 0, 0).
-z_0 = 500
+z_0 = 400
 camera_position = np.array([0, 0, z_0])
 
 # Vector utility
@@ -30,14 +30,14 @@ def normalized(a):
 
 class Color:
     BLACK = (0, 0, 0)
-    GRAY = (150, 150, 150)
-    WHITE = (255, 255, 255)
-    RED = (255, 0, 0)
-    GREEN = (0, 255, 0)
-    BLUE = (0, 0, 255)
-    YELLOW = (255, 255, 0)
+    GRAY = (200, 200, 200)
+    WHITE = (245, 245, 245)
+    RED = (180, 0, 0)
+    GREEN = (0, 180, 0)
+    BLUE = (0, 0, 180)
+    YELLOW = (255, 240, 7)
     PURPLE = (128, 0, 128)
-    ORANGE = (255, 165, 0)
+    ORANGE = (255, 128, 0)
 
 class Point:
     def __init__(self, pos):
@@ -67,12 +67,14 @@ class Point:
         return self.pos[2]
 
 class Triangle:
-    def __init__(self, points : list[Point], color : tuple, flipNormal = False):
+    def __init__(self, points : list[tuple], color : tuple, flipNormal = False):
         """Creates 3-dimensional triangle
         Args:
             points: list of position tuples
             color: an RGB color tuple"""
-        self.points = []
+        self.points_list = points # for cloning
+
+        self.points = [] # list of Point objects
         for coord_tuple in points:
             self.points.append(Point(coord_tuple))
         
@@ -108,6 +110,55 @@ class Triangle:
     def average_z(self):
         return sum([point.z for point in self.points]) / 3
 
+    def clone(self):
+        return Triangle(self.points_list, self.color, self.flipNormal)
+
+class Cube:
+    def __init__(self, pos, r, colors):
+        """Creates a cube.
+        Args:
+            p: position tuple
+            r: half of the side length
+            colors: list of Colors applied in UD FB LR order"""
+        self.triangles = {} # a dictionary of THIS CUBE's triangles 
+        self.pos = pos
+        self.r = r
+        self.colors = colors
+
+        triangle_positions = [
+            [[r, -r, r], [-r, -r, r], [-r, -r, -r]],
+            [[r, -r, r], [r, -r, -r], [-r, -r, -r]],
+            [[-r, r, r], [r, r, r], [-r, r, -r]],
+            [[r, r, -r], [r, r, r], [-r, r, -r]],
+            [[r, -r, r], [r, r, r], [-r, -r, r]],
+            [[-r, r, r], [r, r, r], [-r, -r, r]],
+            [[-r, r, -r], [r, r, -r], [-r, -r, -r]],
+            [[r, -r, -r], [r, r, -r], [-r, -r, -r]],
+            [[-r, -r, -r], [-r, -r, r], [-r, r, -r]],
+            [[-r, r, r], [-r, -r, r], [-r, r, -r]],
+            [[r, r, r], [r, -r, r], [r, r, -r]],
+            [[r, -r, -r], [r, -r, r], [r, r, -r]],
+        ]
+        faces = ["U1", "U2", "D1", "D2", "F1", "F2", "B1", "B2", "L1", "L2", "R1", "R2"]
+        for i in range(12):
+            coord_arr = triangle_positions[i]
+            flipNormal = i % 2
+            color = colors[i // 2]
+
+            triangle = Triangle(coord_arr, color, flipNormal)
+            triangle.translate(pos)
+
+            self.triangles[faces[i]] = triangle
+
+    def tick(self):
+        ...
+
+    def add_tris(self, triangles_list):
+        """Adds this Cube's triangles to ```triangles_list```.
+        Clones, so it is safe to modify these triangles."""
+        for tri in self.triangles.values():
+            triangles_list.append(tri.clone())
+
 class Arcball:
     def get_arcball_vec(pos):
         """Returns the arcball vector given a mouse position vector"""
@@ -129,7 +180,7 @@ class Arcball:
         return np.array([xnorm, ynorm, znorm])
 
     def rotation_matrix(a, b):
-        """Compute the 3d rotation matrix R such that aR = b.
+        """Compute the 3d rotation matrix R such that aR = b, when a and b are normalized.
         Since there are multiple rotation matrices that could do this,
         R is chosen so that all rotation is in the direction of (a cross b)"""
         # first basis vectors
@@ -164,59 +215,27 @@ class Arcball:
         return R
 
 
-    def get_matrix(original_pos, new_pos):
+    def get_mouse_drag_rotmatrix(original_pos, new_pos):
         """Compute rotation matrix from original and new mouse position tuples"""
         # get vectors on radius 1 sphere 
         v1 = Arcball.get_arcball_vec(original_pos)
         w1 = Arcball.get_arcball_vec(new_pos)
         return Arcball.rotation_matrix(v1, w1)
 
-def add_cube(triangles, pos, r, colors):
-    """Adds a cube to the triangles list.
-    Args:
-        triangles: the list of triangles to append to
-        p: position tuple
-        r: half of the side length
-        colors: list of Colors applied in UD FB LR order"""
-    triangle_positions = [
-        [[r, -r, r], [-r, -r, r], [-r, -r, -r]],
-        [[r, -r, r], [r, -r, -r], [-r, -r, -r]],
-        [[-r, r, r], [r, r, r], [-r, r, -r]],
-        [[r, r, -r], [r, r, r], [-r, r, -r]],
-        [[r, -r, r], [r, r, r], [-r, -r, r]],
-        [[-r, r, r], [r, r, r], [-r, -r, r]],
-        [[-r, r, -r], [r, r, -r], [-r, -r, -r]],
-        [[r, -r, -r], [r, r, -r], [-r, -r, -r]],
-        [[-r, -r, -r], [-r, -r, r], [-r, r, -r]],
-        [[-r, r, r], [-r, -r, r], [-r, r, -r]],
-        [[r, r, r], [r, -r, r], [r, r, -r]],
-        [[r, -r, -r], [r, -r, r], [r, r, -r]],
-    ]
-    for i in range(12):
-        coord_arr = triangle_positions[i]
-        flipNormal = i % 2
-        color = colors[i // 2]
-
-        triangle = Triangle(coord_arr, color, flipNormal)
-        triangle.translate(pos)
-
-        triangles.append(triangle)
-
-triangles =[]
-add_cube(triangles, (0, 0, 0), 75, 
+objects = [
+    Cube((0, 0, 0), 75, 
          [Color.WHITE,
           Color.YELLOW,
           Color.GREEN,
           Color.BLUE,
           Color.ORANGE,
           Color.RED])
+    ]
 
-def translate(delta_pos):
-    for tri in triangles:
-        tri.translate(delta_pos)
+R = np.identity(3) # total rotation matrix 
 def transform(matrix):
-    for tri in triangles:
-        tri.transform(matrix)
+    global R
+    R = R @ matrix
 
 # Main game loop
 running = True
@@ -240,35 +259,44 @@ while running:
                 running = False
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        R = Arcball.rotation_matrix((0, 0, 1), (0, -0.05, 1))
-        transform(R)
-    if keys[pygame.K_s]:
-        R = Arcball.rotation_matrix((0, 0, 1), (0, 0.05, 1))
-        transform(R)
-    if keys[pygame.K_a]:
-        R = Arcball.rotation_matrix((0, 0, 1), (-0.05, 0, 1))
-        transform(R)
-    if keys[pygame.K_d]:
-        R = Arcball.rotation_matrix((0, 0, 1), (0.05, 0, 1))
-        transform(R)
-    if keys[pygame.K_q]:
-        R = Arcball.rotation_matrix((1, 0, 0), (1, -0.05, 0))
-        transform(R)
-    if keys[pygame.K_e]:
-        R = Arcball.rotation_matrix((1, 0, 0), (1, 0.05, 0))
-        transform(R)
+    if keys[pygame.K_UP]:
+        Rp = Arcball.rotation_matrix((0, 0, 1), (0, -0.05, 1))
+        transform(Rp)
+    if keys[pygame.K_DOWN]:
+        Rp = Arcball.rotation_matrix((0, 0, 1), (0, 0.05, 1))
+        transform(Rp)
+    if keys[pygame.K_LEFT]:
+        Rp = Arcball.rotation_matrix((0, 0, 1), (-0.05, 0, 1))
+        transform(Rp)
+    if keys[pygame.K_RIGHT]:
+        Rp = Arcball.rotation_matrix((0, 0, 1), (0.05, 0, 1))
+        transform(Rp)
+    if keys[pygame.K_PAGEUP]:
+        Rp = Arcball.rotation_matrix((1, 0, 0), (1, -0.05, 0))
+        transform(Rp)
+    if keys[pygame.K_PAGEDOWN]:
+        Rp = Arcball.rotation_matrix((1, 0, 0), (1, 0.05, 0))
+        transform(Rp)
 
     if dragging:
         if last_mouse_pos:
             curr_mouse_pos = pygame.mouse.get_pos()
-            R = Arcball.get_matrix(last_mouse_pos, curr_mouse_pos)
-            transform(R)
+            Rp = Arcball.get_mouse_drag_rotmatrix(last_mouse_pos, curr_mouse_pos)
+            transform(Rp)
         last_mouse_pos = pygame.mouse.get_pos()
 
     # Fill background
     screen.fill(Color.GRAY)
     
+    # Add scene's triangles
+    triangles = []
+    for object in objects:
+        object.add_tris(triangles)
+
+    # Apply rotations
+    for tri in triangles:
+        tri.transform(R)
+
     # Draw all triangles
     triangles = sorted(triangles, key = lambda tri : tri.average_z())
     for tri in triangles:
