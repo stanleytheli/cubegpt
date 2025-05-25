@@ -70,9 +70,12 @@ class Triangle:
     def __init__(self, points : list[Point], color : tuple, flipNormal = False):
         """Creates 3-dimensional triangle
         Args:
-            points: list of Points
+            points: list of position tuples
             color: an RGB color tuple"""
-        self.points = points
+        self.points = []
+        for coord_tuple in points:
+            self.points.append(Point(coord_tuple))
+        
         self.color = color
         self.flipNormal = flipNormal
 
@@ -117,7 +120,7 @@ class Arcball:
         ynorm = 2 * y / height
 
         # projection onto circle of radius 1
-        rotation_strength = 2.5
+        rotation_strength = 4
         xnorm = np.sqrt(1/2) * np.tanh(rotation_strength * xnorm)
         ynorm = np.sqrt(1/2) * np.tanh(rotation_strength * ynorm)
 
@@ -158,83 +161,52 @@ class Arcball:
         R = np.array([ip, jp, kp])
         return R
 
-# Create multiple triangles with different positions and colors
-objects = [    
-    Triangle(
-        [Point([75, -75, 75]), 
-         Point([75, 75, 75]), 
-         Point([-75, -75, 75])],
-        Color.GREEN,),
-    Triangle(
-        [Point([-75, 75, 75]), 
-         Point([75, 75, 75]), 
-         Point([-75, -75, 75])],
-        Color.GREEN,
-        flipNormal=True),
-    Triangle(
-        [Point([-75, -75, -75]), 
-         Point([-75, -75, 75]), 
-         Point([-75, 75, -75])],
-        Color.ORANGE,),
-    Triangle(
-        [Point([-75, 75, 75]), 
-         Point([-75, -75, 75]), 
-         Point([-75, 75, -75])],
-        Color.ORANGE,
-        flipNormal=True),
-    Triangle(
-        [Point([75, 75, 75]), 
-         Point([75, -75, 75]), 
-         Point([75, 75, -75])],
-        Color.RED,),
-    Triangle(
-        [Point([75, -75, -75]), 
-         Point([75, -75, 75]), 
-         Point([75, 75, -75])],
-        Color.RED,
-        flipNormal=True),
-    Triangle(
-        [Point([-75, 75, -75]), 
-         Point([75, 75, -75]), 
-         Point([-75, -75, -75])],
-        Color.BLUE,),
-    Triangle(
-        [Point([75, -75, -75]), 
-         Point([75, 75, -75]), 
-         Point([-75, -75, -75])],
-        Color.BLUE,
-        flipNormal=True),
-    Triangle(
-        [Point([75, -75, 75]), 
-         Point([-75, -75, 75]), 
-         Point([-75, -75, -75])],
-        Color.WHITE,),
-    Triangle(
-        [Point([75, -75, 75]), 
-         Point([75, -75, -75]), 
-         Point([-75, -75, -75])],
-        Color.WHITE,
-        flipNormal=True),
-    Triangle(
-        [Point([-75, 75, 75]), 
-         Point([75, 75, 75]), 
-         Point([-75, 75, -75])],
-        Color.YELLOW,),
-    Triangle(
-        [Point([75, 75, -75]), 
-         Point([75, 75, 75]), 
-         Point([-75, 75, -75])],
-        Color.YELLOW,
-        flipNormal=True),
-]
+def add_cube(triangles, pos, r, colors):
+    """Adds a cube to the triangles list.
+    Args:
+        triangles: a list of triangles
+        p: position tuple
+        r: half of the side length
+        colors: list of Colors applied in UD FB LR order"""
+    triangle_positions = [
+        [[r, -r, r], [-r, -r, r], [-r, -r, -r]],
+        [[r, -r, r], [r, -r, -r], [-r, -r, -r]],
+        [[-r, r, r], [r, r, r], [-r, r, -r]],
+        [[r, r, -r], [r, r, r], [-r, r, -r]],
+        [[r, -r, r], [r, r, r], [-r, -r, r]],
+        [[-r, r, r], [r, r, r], [-r, -r, r]],
+        [[-r, r, -r], [r, r, -r], [-r, -r, -r]],
+        [[r, -r, -r], [r, r, -r], [-r, -r, -r]],
+        [[-r, -r, -r], [-r, -r, r], [-r, r, -r]],
+        [[-r, r, r], [-r, -r, r], [-r, r, -r]],
+        [[r, r, r], [r, -r, r], [r, r, -r]],
+        [[r, -r, -r], [r, -r, r], [r, r, -r]],
+    ]
+    for i in range(12):
+        coord_arr = triangle_positions[i]
+        flipNormal = i % 2
+        color = colors[i // 2]
+
+        triangle = Triangle(coord_arr, color, flipNormal)
+        triangle.translate(pos)
+
+        triangles.append(triangle)
+
+triangles =[]
+add_cube(triangles, (0, 0, 0), 75, 
+         [Color.WHITE,
+          Color.YELLOW,
+          Color.GREEN,
+          Color.BLUE,
+          Color.ORANGE,
+          Color.RED])
 
 def translate(delta_pos):
-    for object in objects:
-        object.translate(delta_pos)
+    for tri in triangles:
+        tri.translate(delta_pos)
 def transform(matrix):
-    for object in objects:
-        object.transform(matrix)
-
+    for tri in triangles:
+        tri.transform(matrix)
 
 # Main game loop
 running = True
@@ -259,17 +231,17 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        translate((0, 0, 10))
+        R = Arcball.get_matrix((width // 2, height // 2), (width // 2, height // 2 - 10))
+        transform(R)
     if keys[pygame.K_s]:
-        translate((0, 0, -10))
+        R = Arcball.get_matrix((width // 2, height // 2), (width // 2, height // 2 + 10))
+        transform(R)
     if keys[pygame.K_a]:
-        translate((10, 0, 0))
+        R = Arcball.get_matrix((width // 2, height // 2), (width // 2 - 10, height // 2))
+        transform(R)
     if keys[pygame.K_d]:
-        translate((-10, 0, 0))
-    if keys[pygame.K_q]:
-        translate((0, 10, 0))
-    if keys[pygame.K_e]:
-        translate((0, -10, 0))
+        R = Arcball.get_matrix((width // 2, height // 2), (width // 2 + 10, height // 2))
+        transform(R)
 
     if dragging:
         if last_mouse_pos:
@@ -281,10 +253,10 @@ while running:
     # Fill background
     screen.fill(Color.GRAY)
     
-    # Draw all objects
-    objects = sorted(objects, key = lambda tri : tri.average_z())
-    for object in objects:
-        object.draw(screen)
+    # Draw all triangles
+    triangles = sorted(triangles, key = lambda tri : tri.average_z())
+    for tri in triangles:
+        tri.draw(screen)
     
     # Update display
     pygame.display.flip()
