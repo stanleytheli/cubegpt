@@ -4,7 +4,7 @@ import numpy as np
 
 solved_string = "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY"
 
-f = open("../lookup_tables/cube_utils.json", "r")
+f = open("C:/Users/stanl/rubiks/lookup_tables/cube_utils.json", "r")
 tables = json.load(f)
 f.close()
 
@@ -100,6 +100,14 @@ class CubeState:
         if prev_state:
             self.prev2_move_class = prev_state.prev_move_class
     
+    def forget(self):
+        """Forget this Cube's history (for fair solving)."""
+        self.prev_state = None
+        self.prev_move = None
+        self.prev_move_class = None
+        self.prev_move_type = None
+        self.prev2_move_class = None
+
     def get_tensor(self):
         return string_to_tensor(self.cube_string)
     
@@ -182,3 +190,4 @@ def all_states_pairs(depth, starting_state = CubeState()) -> list[tuple[CubeStat
                 states_pairs.append((new_state, i + 1))
         
     return states_pairs
+
