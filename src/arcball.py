@@ -19,11 +19,15 @@ class Arcball:
         # projection onto circle of radius srqt2 (to contain the whole screen)
         xnorm = 2 * x / width
         ynorm = 2 * y / height
+        
 
         # projection onto circle of radius 1
-        rotation_strength = 3
-        xnorm = np.sqrt(1/2) * np.tanh(rotation_strength * xnorm)
-        ynorm = np.sqrt(1/2) * np.tanh(rotation_strength * ynorm)
+        rotation_strength = 3.5
+        r = np.sqrt(xnorm ** 2 + ynorm ** 2) # 0 to sqrt2
+        rp = np.sqrt(1/2) * np.tanh(rotation_strength * r) # 0 to ~1
+
+        xnorm = rp/r * xnorm
+        ynorm = rp/r * ynorm
 
         # projection onto sphere of radius 1
         znorm = np.sqrt(1 - xnorm ** 2 - ynorm ** 2)
