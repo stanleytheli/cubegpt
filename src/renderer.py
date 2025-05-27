@@ -5,6 +5,7 @@ import numpy as np
 from arcball import Arcball
 from render_utils import *
 from objects import *
+from utils import *
 
 """
 Extremely rudimentary 3d renderer 
@@ -21,17 +22,11 @@ Arcball.set_dimensions(width, height)
 
 camera_position = np.array([0, 0, z_0])
 
+random_string = scrambled(30).cube_string
+rubiks_cube = RubiksCube(cube_string = random_string)
+
 objects = [
-    Cube((0, 0, 0), 75, 
-         [Color.WHITE,
-          Color.YELLOW,
-          Color.GREEN,
-          Color.BLUE,
-          Color.ORANGE,
-          Color.RED],
-          border_color=Color.BLACK,
-          border_thickness=4,
-          border_offset=1.5),
+    rubiks_cube,
     ]
 
 R = np.identity(3) # total rotation matrix 

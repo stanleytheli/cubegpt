@@ -15,6 +15,7 @@ def normalized(a):
 class Color:
     BLACK = (0, 0, 0)
     GRAY = (200, 200, 200)
+    DARK_GRAY = (150, 150, 150)
     WHITE = (245, 245, 245)
     RED = (180, 0, 0)
     GREEN = (0, 180, 0)

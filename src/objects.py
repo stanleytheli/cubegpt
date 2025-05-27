@@ -2,6 +2,12 @@ import pygame
 import numpy as np
 from render_utils import *
 from utils import *
+import json
+
+# fetch lookup table for rubik's cubes
+f = open("./lookup_tables/renderer_posfaceidx.json", "r")
+r_pos_face_idx = eval(json.load(f))
+f.close()
 
 class Point:
     def __init__(self, pos):
@@ -104,7 +110,7 @@ class Triangle:
             return
 
         draw_points = [point.get_draw_coords(surface, camera_position) for point in self.points]
-        pygame.draw.polygon(surface, self.color, draw_points)
+        pygame.draw.polygon(surface, self.color, draw_points, 0)
 
     def translate(self, delta_pos):
         """Translate this triangle by tuple ```delta_pos```"""
@@ -157,7 +163,7 @@ class Cube:
         Args:
             p: position tuple
             r: half of the side length
-            colors: list of Colors applied in UD FB LR order
+            colors: list of Colors applied in UD FB LR order. If a Color is None, doesn't add this face.
             border_color: color of the border, default=None
             border_thickness: thickness of the border. 0 = no border. default=0
             border_offset: how much the border portrudes from the cube. recommended=border_thickness/2 - (small value)"""
@@ -170,9 +176,12 @@ class Cube:
         
         triangle_positions = (r * Cube.triangle_positions).tolist()
         for i in range(12):
-            coord_arr = r * triangle_positions[i]
-            flipNormal = i % 2
             color = colors[i // 2]
+            if color is None:
+                continue 
+
+            coord_arr = triangle_positions[i]
+            flipNormal = i % 2
 
             triangle = Triangle(coord_arr, color, flipNormal)
             triangle.translate(pos)
@@ -192,7 +201,9 @@ class Cube:
                     if vertex[i] > 0:
                         copy = list(vertex)
                         copy[i] = -copy[i]
-                        self.triangles[f"EDGE{n_edges_added}"] = Line([vertex, copy], border_color, border_thickness)
+                        line = Line([vertex, copy], border_color, border_thickness)
+                        line.translate(pos)
+                        self.triangles[f"EDGE{n_edges_added}"] = line
                         n_edges_added += 1
 
 
@@ -204,3 +215,67 @@ class Cube:
         Clones, so it is safe to modify these triangles."""
         for tri in self.triangles.values():
             triangles_list.append(tri.clone())
+
+class RubiksCube:
+    color_map = {
+        "W" : Color.WHITE,
+        "Y" : Color.YELLOW,
+        "O" : Color.ORANGE,
+        "B" : Color.BLUE,
+        "R" : Color.RED,
+        "G" : Color.GREEN,
+    }
+
+    def __init__(self, r=30, cube_string=solved_string):
+        """Create a Rubik's Cube"""
+        self.r = r
+        self.cubes : list[Cube] = []
+        self.set_cube_string(cube_string)
+
+    def add_tris(self, triangles):
+        for cube in self.cubes:
+            cube.add_tris(triangles)
+
+    def set_cube_string(self, cube_string):
+        self.cube_string = cube_string
+        for pos, faces in r_pos_face_idx.items():
+            # Position tuples are in L/R, U/D, F/B order 
+            # Cube init is in U/D, F/B, L/R order
+            cube_pos = list(2 * self.r * coord for coord in pos)
+            cube_pos[1] = -cube_pos[1] # Correct opposite sign convention for y coordinate
+            cube_colors = [None] * 6
+
+            curr_face = 0
+            x, y, z = pos
+
+            if x != 0:
+                idx = faces[curr_face]
+                color = RubiksCube.color_map[cube_string[idx]]
+                if x == 1:
+                    cube_colors[5] = color
+                elif x == -1:
+                    cube_colors[4] = color
+                curr_face += 1
+            if y != 0:
+                idx = faces[curr_face]
+                color = RubiksCube.color_map[cube_string[idx]]
+                if y == 1:
+                    cube_colors[0] = color
+                elif y == -1:
+                    cube_colors[1] = color
+                curr_face += 1
+            if z != 0:
+                idx = faces[curr_face]
+                color = RubiksCube.color_map[cube_string[idx]]
+                if z == 1:
+                    cube_colors[2] = color
+                elif z == -1:
+                    cube_colors[3] = color
+                curr_face += 1
+            
+            self.cubes.append(Cube(cube_pos, self.r, 
+                                   cube_colors, 
+                                   border_color = Color.BLACK, 
+                                   border_thickness = 3, 
+                                   border_offset = 0))
+        
