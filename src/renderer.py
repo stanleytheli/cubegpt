@@ -28,13 +28,17 @@ objects = [
           Color.GREEN,
           Color.BLUE,
           Color.ORANGE,
-          Color.RED]),
+          Color.RED],
+          border_color=Color.BLACK,
+          border_thickness=4,
+          border_offset=1.5),
     ]
 
 R = np.identity(3) # total rotation matrix 
 def transform(matrix):
     global R
     R = R @ matrix
+
 
 # Main game loop
 running = True
@@ -43,8 +47,10 @@ clock = pygame.time.Clock()
 dragging = False
 last_mouse_pos = None
 
-while running:
-    # Handle events
+def tick(dt):
+    # at 60 fps, dt = 0.01667
+    global running, dragging, last_mouse_pos
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -59,22 +65,22 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (0, -0.05, 1))
+        Rp = Arcball.rotation_matrix((0, 0, 1), (0, -3*dt, 1))
         transform(Rp)
     if keys[pygame.K_DOWN]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (0, 0.05, 1))
+        Rp = Arcball.rotation_matrix((0, 0, 1), (0, 3*dt, 1))
         transform(Rp)
     if keys[pygame.K_LEFT]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (-0.05, 0, 1))
+        Rp = Arcball.rotation_matrix((0, 0, 1), (-3*dt, 0, 1))
         transform(Rp)
     if keys[pygame.K_RIGHT]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (0.05, 0, 1))
+        Rp = Arcball.rotation_matrix((0, 0, 1), (3*dt, 0, 1))
         transform(Rp)
     if keys[pygame.K_PAGEUP]:
-        Rp = Arcball.rotation_matrix((1, 0, 0), (1, -0.05, 0))
+        Rp = Arcball.rotation_matrix((1, 0, 0), (1, -3*dt, 0))
         transform(Rp)
     if keys[pygame.K_PAGEDOWN]:
-        Rp = Arcball.rotation_matrix((1, 0, 0), (1, 0.05, 0))
+        Rp = Arcball.rotation_matrix((1, 0, 0), (1, 3*dt, 0))
         transform(Rp)
 
     if dragging:
@@ -84,6 +90,7 @@ while running:
             transform(Rp)
         last_mouse_pos = pygame.mouse.get_pos()
 
+def render(screen):
     # Fill background
     screen.fill(Color.GRAY)
     
@@ -100,12 +107,21 @@ while running:
     triangles = sorted(triangles, key = lambda tri : tri.min_z())
     for tri in triangles:
         tri.draw(screen, camera_position)
-    
+
+
+dt = 0
+while running:
+    # Handle events
+    tick(dt)
+
+    # Draw scene
+    render(screen)
+
     # Update display
     pygame.display.flip()
     
     # Control frame rate
-    clock.tick(60)
+    dt = clock.tick(60) / 1000
 
 # Quit
 pygame.quit()
