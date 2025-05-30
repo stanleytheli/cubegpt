@@ -22,12 +22,12 @@ class Arcball:
         
 
         # projection onto circle of radius 1
-        rotation_strength = 3.5
         r = np.sqrt(xnorm ** 2 + ynorm ** 2) # 0 to sqrt2
-        rp = np.sqrt(1/2) * np.tanh(rotation_strength * r) # 0 to ~1
-
-        xnorm = rp/r * xnorm
-        ynorm = rp/r * ynorm
+        if r > 0: # numerical stability
+            rotation_strength = 3.5
+            rp = np.sqrt(1/2) * np.tanh(rotation_strength * r) # 0 to ~1
+            xnorm = rp/r * xnorm
+            ynorm = rp/r * ynorm
 
         # projection onto sphere of radius 1
         znorm = np.sqrt(1 - xnorm ** 2 - ynorm ** 2)
@@ -67,6 +67,31 @@ class Arcball:
 
         R = np.array([ip, jp, kp])
         return R
+
+    def axis_angle_rotmatrix(u, theta):
+        """Return the rotation matrix that rotates angle theta about axis u. 
+        If u is taken to point out of the page, a positive-theta rotation is clockwise.
+        (Would be counterclockwise in a right-handed coordinate system)"""
+        u = normalized(np.array(u))
+        
+        # 'origin' vector
+        a = np.array([1, 0, 0])
+        a = a - dot(a, u) * u
+
+        epsilon = 0.0001 # take care of the case where a lied entirely along u, making orthogonal gen awkward
+        if dot(a, a) < epsilon:
+            a = np.array([0, 1, 0])
+            a = a - dot(a, u) * u
+        
+        a = normalized(a)
+
+        # second basis vector
+        a2 = cross(u, a)
+
+        # 'target' vector
+        b = np.cos(theta) * a + np.sin(theta) * a2
+
+        return Arcball.rotation_matrix(a, b)
 
 
     def get_mouse_drag_rotmatrix(original_pos, new_pos):
