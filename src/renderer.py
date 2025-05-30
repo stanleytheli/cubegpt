@@ -17,13 +17,14 @@ pygame.init()
 width, height = 800, 600
 z_0 = 600 # z_0 controls the FOV. The camera is positioned at (0, 0, z_0) and looks toward (0, 0, 0).
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("3D Rendering")
+pygame.display.set_caption("3D Rendering - Rubik's Cube")
 Arcball.set_dimensions(width, height)
 
 camera_position = np.array([0, 0, z_0])
 
+#cube_string = solved_string
 #cube_string = scrambled(10).cube_string
-cube_string = "WBYGWRYRGROOBOBBOWBYOYGWOGGYWRORROOWGWGGBRBGRBYWBYYYWR"
+cube_string = "YBGGWYBGBGWWWOOBRYROOWGYRRGWOWGRBYBRORROBBGYYBGOWYYORW"
 rubiks_cube = RubiksCube(cube_string=cube_string,
                          r = 40,)
 
@@ -63,22 +64,22 @@ def tick(dt):
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (0, -3*dt, 1))
+        Rp = Arcball.axis_angle_rotmatrix((1, 0, 0), 3*dt)
         transform(Rp)
     if keys[pygame.K_DOWN]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (0, 3*dt, 1))
+        Rp = Arcball.axis_angle_rotmatrix((1, 0, 0), -3*dt)
         transform(Rp)
     if keys[pygame.K_LEFT]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (-3*dt, 0, 1))
+        Rp = Arcball.axis_angle_rotmatrix((0, -1, 0), 3*dt)
         transform(Rp)
     if keys[pygame.K_RIGHT]:
-        Rp = Arcball.rotation_matrix((0, 0, 1), (3*dt, 0, 1))
+        Rp = Arcball.axis_angle_rotmatrix((0, -1, 0), -3*dt)
         transform(Rp)
     if keys[pygame.K_PAGEUP]:
-        Rp = Arcball.rotation_matrix((1, 0, 0), (1, -3*dt, 0))
+        Rp = Arcball.axis_angle_rotmatrix((0, 0, 1), -3*dt)
         transform(Rp)
     if keys[pygame.K_PAGEDOWN]:
-        Rp = Arcball.rotation_matrix((1, 0, 0), (1, 3*dt, 0))
+        Rp = Arcball.axis_angle_rotmatrix((0, 0, 1), 3*dt)
         transform(Rp)
 
     move = None
