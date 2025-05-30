@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from render_utils import *
 from utils import *
+from arcball import Arcball
 import json
 
 # fetch lookup table for rubik's cubes
@@ -167,7 +168,7 @@ class Cube:
             border_color: color of the border, default=None
             border_thickness: thickness of the border. 0 = no border. default=0
             border_offset: how much the border portrudes from the cube. recommended=border_thickness/2 - (small value)"""
-        self.triangles = {} # a dictionary of THIS CUBE's triangles 
+        self.triangles : dict[str, Triangle] = {} # a dictionary of THIS CUBE's triangles 
         self.pos = pos
         self.r = r
         self.colors = colors
@@ -207,8 +208,17 @@ class Cube:
                         n_edges_added += 1
 
 
+    def translate(self, delta_pos):
+        """Translate this Cube by tuple ```delta_pos```"""
+        for tri in self.triangles.values():
+            tri.translate(delta_pos)
+    def transform(self, matrix):
+        """Multiply this Cube's position vectors by ```matrix```"""
+        for tri in self.triangles.values():
+            tri.transform(matrix)
+
     def tick(self, dt):
-        ...
+        pass
 
     def add_tris(self, triangles_list):
         """Adds this Cube's triangles to ```triangles_list```.
@@ -226,23 +236,101 @@ class RubiksCube:
         "G" : Color.GREEN,
     }
 
-    def __init__(self, r=30, cube_string=solved_string):
-        """Create a Rubik's Cube"""
+    def __init__(self, cube_string=solved_string, r=30, border_thickness=4, border_offset=0):
+        """Create a Rubik's Cube
+        Args:
+            r: The radius of each cubelet (radius of rubik's cube = 3r)
+            cube_string: cube string to be displayed by this cube"""
         self.r = r
-        self.cubes : list[Cube] = []
-        self.set_cube_string(cube_string)
+        self.border_thickness = border_thickness
+        self.border_offset = border_offset
+        self.cubes : dict[tuple[int] : Cube] = {}
+
+        self.cube_string = cube_string
+        self.display_cube_string = cube_string
+        self.build_display(self.display_cube_string)
+
+        self.anim_length = 0.15 # animation length in seconds
+        self.anim_progress = 0 # animation current progress, from 0 to 1
+        self.anim_rotation_axis = None # axis of rotation for animation
+        self.anim_total_angle = None # total angle to be rotated across animation
+        self.anim_current_angle = 0 # current animation angle
+        self.anim_cube_group : list[Cube] = [] # cubes to rotate during animation
+
+        # interpolation function takes animation progress 0-1 and returns rotation progress, also 0-1. 
+        # in other words, a function over [0,1] typically with f(0)=0, f(1)=1 
+        self.anim_interp = RubiksCube.normedTanh
+
+    # Interpolation functions
+    def uniformInterp(x):
+        return x
+    def normedTanh(x):
+        a = 4 # Free parameter controlling the level of perturbation from uniformInterp
+        t = lambda x : np.tanh(a * (x - 1/2))
+        return (t(x) - t(0))/(t(1) - t(0))
 
     def add_tris(self, triangles):
-        for cube in self.cubes:
+        for cube in self.cubes.values():
             cube.add_tris(triangles)
 
-    def set_cube_string(self, cube_string):
-        self.cube_string = cube_string
+    def tick(self, dt):
+        if self.anim_progress > 0:
+            self.anim_progress += dt / self.anim_length
+            new_theta = self.anim_total_angle * self.anim_interp(self.anim_progress)
+            dtheta = new_theta - self.anim_current_angle
+
+            R = Arcball.axis_angle_rotmatrix(self.anim_rotation_axis, dtheta)
+            for cube in self.anim_cube_group:
+                cube.transform(R)
+            
+            self.anim_current_angle = new_theta
+
+        if self.anim_progress > 1:
+            self.reset_animation()
+            
+    def reset_animation(self):
+        self.anim_progress = 0
+        self.anim_current_angle = 0
+        self.display_cube_string = self.cube_string
+        self.build_display(self.display_cube_string)
+
+    def rotate(self, move):
+        # stop current animation if there is one
+        self.reset_animation()
+
+        # start rotating animation
+        self.cube_string = rotate_string(self.cube_string, move) # this is the new move string
+        self.anim_progress = 0.001 # make it nonzero
+        self.anim_cube_group = []
+
+        self.anim_total_angle = np.pi / 2
+        if move[-1] == "'":
+            self.anim_total_angle = - np.pi / 2
+
+        if move == "U" or move == "U'":
+            axis = np.array([0, -1, 0])
+        elif move == "D" or move == "D'":
+            axis = np.array([0, 1, 0])
+        elif move == "L" or move == "L'":
+            axis = np.array([-1, 0, 0])
+        elif move == "R" or move == "R'":
+            axis = np.array([1, 0, 0])
+        elif move == "F" or move == "F'":
+            axis = np.array([0, 0, 1])
+        elif move == "B" or move == "B'":
+            axis = np.array([0, 0, -1])
+
+        for pos, cube in self.cubes.items():
+            if dot(pos, axis) == 2 * self.r:
+                self.anim_cube_group.append(cube)
+        
+        self.anim_rotation_axis = axis
+
+    def build_display(self, cube_string):
         for pos, faces in r_pos_face_idx.items():
             # Position tuples are in L/R, U/D, F/B order 
             # Cube init is in U/D, F/B, L/R order
-            cube_pos = list(2 * self.r * coord for coord in pos)
-            cube_pos[1] = -cube_pos[1] # Correct opposite sign convention for y coordinate
+            cube_pos = (2*self.r*pos[0], -2*self.r*pos[1], 2*self.r*pos[2]) # Correct opposite y sign convention
             cube_colors = [None] * 6
 
             curr_face = 0
@@ -273,9 +361,13 @@ class RubiksCube:
                     cube_colors[3] = color
                 curr_face += 1
             
-            self.cubes.append(Cube(cube_pos, self.r, 
-                                   cube_colors, 
-                                   border_color = Color.BLACK, 
-                                   border_thickness = 3, 
-                                   border_offset = 0))
+            # Peek at the inside...
+            #if np.random.random() > 0.5:
+            #    continue
+
+            self.cubes[cube_pos] = Cube(cube_pos, self.r,
+                                        cube_colors,
+                                        border_color = Color.BLACK,
+                                        border_thickness = self.border_thickness,
+                                        border_offset = self.border_offset)
         

@@ -99,8 +99,7 @@ def tick(dt):
         move += "'"
 
     if move is not None and can_move:
-        cube_string = rotate_string(cube_string, move)
-        rubiks_cube.set_cube_string(cube_string)
+        rubiks_cube.rotate(move)
         can_move = False
 
     if move is None:
@@ -112,6 +111,9 @@ def tick(dt):
             Rp = Arcball.get_mouse_drag_rotmatrix(last_mouse_pos, curr_mouse_pos)
             transform(Rp)
         last_mouse_pos = pygame.mouse.get_pos()
+
+    for object in objects:
+        object.tick(dt)
 
 def render(screen):
     # Fill background
@@ -144,7 +146,7 @@ while running:
     pygame.display.flip()
     
     # Control frame rate
-    dt = clock.tick(60) / 1000
+    dt = clock.tick() / 1000
 
 # Quit
 pygame.quit()
