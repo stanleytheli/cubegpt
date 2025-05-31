@@ -217,6 +217,9 @@ class Cube:
         for tri in self.triangles.values():
             tri.transform(matrix)
 
+    def register_event(self, event : pygame.event.Event):
+        pass
+
     def tick(self, dt):
         pass
 
@@ -236,7 +239,7 @@ class RubiksCube:
         "G" : Color.GREEN,
     }
 
-    def __init__(self, cube_string=solved_string, r=30, border_thickness=4, border_offset=0):
+    def __init__(self, cube_string=solved_string, r=30, interactable=True, border_thickness=4, border_offset=0):
         """Create a Rubik's Cube
         Args:
             r: The radius of each cubelet (radius of rubik's cube = 3r)
@@ -249,6 +252,8 @@ class RubiksCube:
         self.cube_string = cube_string
         self.display_cube_string = cube_string
         self.build_display(self.display_cube_string)
+
+        self.interactable = interactable
 
         self.anim_length = 0.15 # animation length in seconds
         self.anim_progress = 0 # animation current progress, from 0 to 1
@@ -272,6 +277,32 @@ class RubiksCube:
     def add_tris(self, triangles):
         for cube in self.cubes.values():
             cube.add_tris(triangles)
+
+    def register_event(self, event : pygame.event.Event):
+        if not self.interactable:
+            return
+        
+        if event.type == pygame.KEYDOWN:
+            key = event.key
+            move = None
+            if key == pygame.K_u:
+                move = "U"
+            if key == pygame.K_d:
+                move = "D"
+            if key == pygame.K_f:
+                move = "F"
+            if key == pygame.K_b:
+                move = "B"
+            if key == pygame.K_l:
+                move = "L"
+            if key == pygame.K_r:
+                move = "R"
+            down = pygame.key.get_pressed()
+            if move is not None and (down[pygame.K_LSHIFT] or down[pygame.K_RSHIFT]):
+                move += "'"
+            if move is not None:
+                self.rotate(move)
+            
 
     def tick(self, dt):
         if self.anim_progress > 0:

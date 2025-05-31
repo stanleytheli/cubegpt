@@ -24,7 +24,7 @@ camera_position = np.array([0, 0, z_0])
 
 #cube_string = solved_string
 #cube_string = scrambled(10).cube_string
-cube_string = "YBGGWYBGBGWWWOOBRYROOWGYRRGWOWGRBYBRORROBBGYYBGOWYYORW"
+cube_string = "BWYYWYRYWYBBWOGGOYWOBWGGGYRORORRRGOGBRRBBBOOORGWBYGYWW"
 rubiks_cube = RubiksCube(cube_string=cube_string,
                          r = 40,)
 
@@ -43,7 +43,6 @@ running = True
 clock = pygame.time.Clock()
 
 dragging = False
-can_move = True
 last_mouse_pos = None
 
 def tick(dt):
@@ -51,6 +50,8 @@ def tick(dt):
     global running, dragging, last_mouse_pos, can_move, cube_string
 
     for event in pygame.event.get():
+        for object in objects:
+            object.register_event(event)
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -81,29 +82,6 @@ def tick(dt):
     if keys[pygame.K_PAGEDOWN]:
         Rp = Arcball.axis_angle_rotmatrix((0, 0, 1), 3*dt)
         transform(Rp)
-
-    move = None
-    if keys[pygame.K_u]:
-        move = "U"
-    if keys[pygame.K_d]:
-        move = "D"
-    if keys[pygame.K_f]:
-        move = "F"
-    if keys[pygame.K_b]:
-        move = "B"
-    if keys[pygame.K_l]:
-        move = "L"
-    if keys[pygame.K_r]:
-        move = "R"
-    if (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]) and move is not None:
-        move += "'"
-
-    if move is not None and can_move:
-        rubiks_cube.rotate(move)
-        can_move = False
-
-    if move is None:
-        can_move = True
 
     if dragging:
         if last_mouse_pos:
