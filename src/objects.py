@@ -250,8 +250,7 @@ class RubiksCube:
         self.cubes : dict[tuple[int] : Cube] = {}
 
         self.cube_string = cube_string
-        self.display_cube_string = cube_string
-        self.build_display(self.display_cube_string)
+        self.build_display(self.cube_string)
 
         self.interactable = interactable
 
@@ -322,8 +321,7 @@ class RubiksCube:
     def reset_animation(self):
         self.anim_progress = 0
         self.anim_current_angle = 0
-        self.display_cube_string = self.cube_string
-        self.build_display(self.display_cube_string)
+        self.build_display(self.cube_string)
 
     def rotate(self, move):
         # stop current animation if there is one
