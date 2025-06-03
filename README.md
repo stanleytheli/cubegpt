@@ -1,6 +1,6 @@
 # CubeGPT: A Transformer-based Rubik's Cube Solver
 
-This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers.
+This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers. It is also, very vaguely, inspired by chess engines.
 
 ## Problem: The 3x3 Rubik's Cube
 The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. We have to prune our decision trees *extremely* aggressively if we want to solve Cubes in a realistic amount of time (and using a minimal number of moves to solve them). This begs a highly effective heuristic function, which is where machine learning comes in. In this project I investigate whether transformers neural networks can be used to effectively and efficiently solve Rubik's Cubes.
