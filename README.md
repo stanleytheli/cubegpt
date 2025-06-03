@@ -1,19 +1,19 @@
 # CubeGPT: A Transformer-based Rubik's Cube Solver
 
+This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers.
+
 ## Problem: The 3x3 Rubik's Cube
-The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. We have to prune our decision trees *extremely* aggressively if we want to solve Cubes in a realistic amount of time and with a minimal number of moves. This begs a highly effective heuristic function, which is where machine learning comes in. 
+The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. We have to prune our decision trees *extremely* aggressively if we want to solve Cubes in a realistic amount of time (and using a minimal number of moves to solve them). This begs a highly effective heuristic function, which is where machine learning comes in. In this project I investigate whether transformers neural networks can be used to effectively and efficiently solve Rubik's Cubes.
 
 
 ![A scrambled Rubik's Cube with an arrow pointing to a solved Rubik's Cube](images/scrambledArrowSolved.png)
 
-Our method proved effective. For instance, our solve found the following 19-move solution to the Cube in the above graphic:
+Our method proves quite effective. For instance, the solver finds the following 19-move solution to the Cube in the above graphic:
 
 https://github.com/user-attachments/assets/99eee76e-5053-4918-a314-cbfdbe08be9d
 
 
-This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers.
-
-Images rendered using py-renderer, which I also made!
+Image/video rendered using py-renderer, a 3D renderer I built to visualize this project.
 
 ## Approach
 
