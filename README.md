@@ -53,6 +53,7 @@ For this project, a number of models were trained and evaluated. The solver resu
 
 | Model             | Training Examples (Millions) | Mean Squared Error | Within-3-Accuracy | Within-4-Accuracy | Accuracy (When rounding to nearest int) |
 | ---               | ---                          | ---                | ---               | ---               | ---                                     |
+|CubeGPT 2h-mix     | 3.84                         | 5.58               | N/A               | N/A               | N/A                                     |
 |CubeGPT 2h-early   | 3.84                         | 5.02               | N/A               | N/A               | N/A                                     |
 |CubeGPT 2h         | 7.68                         | 4.96               | 81.41%            | 90.71%            | 37.51%                                  |
 |CubeGPT 2h-PFT     | 12.9                         | 4.87               | 81.49%            | 90.94%            |**38.06%**                               |
@@ -61,6 +62,7 @@ For this project, a number of models were trained and evaluated. The solver resu
 |CubeGPT 2g-PFT     | 26.2                         |  4.70              |**82.49%**         | **91.37%**        | 37.88%                                  |
 
 <br> **CubeGPT 2h**: Consider this the 'default' or base model, uses basic transformer architecture and ReLU activation. 
+<br> **CubeGPT 2h-mix**: Same architecture as 2h, but trained on both full paths and individual samples. Shows that prematurely training on paths gives worse results. 
 <br> **CubeGPT 2h-early**: A snapshot of CubeGPT-2h halfway through training.
 <br> **CubeGPT 2h-PFT**: 2h after Path Finetuning. (Named as -2h-morepft in models/)
 <br> **CubeGPT 2g**: Same architecture as 2h, but using GeLU instead of ReLU. (Named as -2g-t2 in models/)
