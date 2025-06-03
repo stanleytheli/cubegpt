@@ -47,7 +47,7 @@ Setting the beam width *w* = 4000, our transformer model is able to highly consi
 For comparison purposes, elite human solvers typically take 50 to 60 moves to solve a fully scrambled cube. Those optimizing for lower move counts typically lie in the 40 to 50 range. The theoretical maximum is 20, and using optimal solvers it is found that in practice most take around 18. Therefore, an average of 21.1 approaches the theoretical optimal.    
 
 ### Model Results
-For this project, a number of models were trained and evaluated. Selected results are shown.
+For this project, a number of models were trained and evaluated. Our solver results were mostly obtained using CubeGPT-2g-PFT, selected for scoring well on all evaluations. Selected results are shown.
 
 
 | Model             | Training Examples (Millions) | Mean Squared Error | Within-3-Accuracy | Within-4-Accuracy | Accuracy (When rounding to nearest int) |
