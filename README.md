@@ -1,10 +1,15 @@
 # CubeGPT: A Transformer-based Rubik's Cube Solver
 
 ## Problem: The 3x3 Rubik's Cube
-The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. We have to prune our decision trees *extremely* aggressively  if we want to solve Cubes in a realistic amount of time. This begs a highly effective heuristic function, which is where machine learning comes in. 
+The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. We have to prune our decision trees *extremely* aggressively if we want to solve Cubes in a realistic amount of time and with a minimal number of moves. This begs a highly effective heuristic function, which is where machine learning comes in. 
 
 
 ![A scrambled Rubik's Cube with an arrow pointing to a solved Rubik's Cube](images/scrambledArrowSolved.png)
+
+Our method proved effective. For instance, our solve found the following 19-move solution to the Cube in the above graphic:
+
+https://github.com/user-attachments/assets/99eee76e-5053-4918-a314-cbfdbe08be9d
+
 
 This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers.
 
@@ -27,10 +32,6 @@ We empirically show that training first on individual random samples (the 'ends'
 Solving is done via beam search: every step, we project forward one move, then evaluate each of those new states using the model. All but the lowest *w* are pruned. For solving fully scrambled cubes, we find highly consistent success with *w* = 4000. Increasing *w* generally increases the solve probability and decreases the lengths of the found solutions. 
 
 ## Results
-
-https://github.com/user-attachments/assets/99eee76e-5053-4918-a314-cbfdbe08be9d
-
-*The solver finds a solution in 19 moves to the Cube from the beginning graphic.* 
 
 ### Solver Results
 
