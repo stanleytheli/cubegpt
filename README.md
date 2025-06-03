@@ -67,4 +67,13 @@ For this project, a number of models were trained and evaluated. The solver resu
 <br> **CubeGPT 2g-early**: 2g snapshot during training. (Named as -2g in models/)
 <br> **CubeGPT 2g-PFT**: 2g after Path Finetuning. (Named as -2g-tmpft2 in models/)
 
+## More Solves
+
+
+https://github.com/user-attachments/assets/37efc5e2-a912-47d4-a3f1-33cf9cbca75c
+
+
+
+https://github.com/user-attachments/assets/8c89c2d3-0b6d-4598-9951-6ff9c6129f9a
+
 
