@@ -21,3 +21,10 @@ We empirically show that training first on individual random samples (the 'ends'
 ### Solving
 
 Solving is done via beam search: every step, we project forward one move, then evaluate each of those new states using the model. All but the lowest *w* are pruned. For solving fully scrambled cubes, we find highly consistent success with *w* = 4000. Increasing *w* generally increases the solve probability and decreases the lengths of the found solutions. 
+
+## Results
+
+We find that using a beam width of *w* = 4000, our transformer model is able to highly consistently solve fully scrambled Rubik's Cubes. 
+
+https://github.com/user-attachments/assets/99eee76e-5053-4918-a314-cbfdbe08be9d
+
