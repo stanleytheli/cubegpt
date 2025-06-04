@@ -36,7 +36,7 @@ Solving is done via beam search: every step, I project forward one move, then ev
 
 ### Solver Results
 
-Setting the beam width *w* = 4000, the transformer model is able to highly consistently solve fully scrambled Rubik's Cubes. And with only *w* = 300, we were able to achieve a fully optimal depth-10 solver. Tests were conducted with sample size 100. Tests were cut off and marked failed if a solution was not found after 50 moves. 
+Setting the beam width *w* = 4000, the transformer model is able to highly consistently solve fully scrambled Rubik's Cubes. And with only *w* = 300, we were able to achieve a fully optimal depth-10 solver.
 
 | Scramble Depth | *w* | Solve Probability | Average Solve Length (Moves, HTM metric) |
 | -------------- | --- | ----------------- | ---------------------------------------- |
@@ -45,6 +45,8 @@ Setting the beam width *w* = 4000, the transformer model is able to highly consi
 | 10             | 300 | 100%              | 10.0                                     |
 | 15             | 200 | 58%               | N/A                                      |
 | 15             | 300 | 62%               | 21.6                                     |
+| 15             | 500 | 78%               | 21.5                                     |
+| 15             | 1000| 89%               | 19.7                                     |
 | Full (30)      | 4000| 100%              | 21.1                                     |
 
 For comparison purposes, elite human solvers typically take 50 to 60 moves to solve a fully scrambled cube. Those optimizing for lower move counts typically lie in the 40 to 50 range. The theoretical maximum is 20, and using optimal solvers it is found that in practice most take around 18. Therefore, an average of 21.1 approaches the theoretical optimal.    
