@@ -36,7 +36,7 @@ Solving is done via beam search: every step, I project forward one move, then ev
 
 ### Solver Results
 
-Setting the beam width *w* = 4000, the transformer model is able to highly consistently solve fully scrambled Rubik's Cubes. Tests were conducted with sample size 100. Tests were cut off and marked failed if a solution was not found after 50 moves. 
+Setting the beam width *w* = 4000, the transformer model is able to highly consistently solve fully scrambled Rubik's Cubes. And with only *w* = 300, we were able to achieve a fully optimal depth-10 solver. Tests were conducted with sample size 100. Tests were cut off and marked failed if a solution was not found after 50 moves. 
 
 | Scramble Depth | *w* | Solve Probability | Average Solve Length (Moves, HTM metric) |
 | -------------- | --- | ----------------- | ---------------------------------------- |
