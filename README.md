@@ -69,6 +69,14 @@ For this project, a number of models were trained and evaluated. The solver resu
 <br> **CubeGPT 2g-early**: 2g snapshot during training. (Named as -2g in models/)
 <br> **CubeGPT 2g-PFT**: 2g after Path Finetuning. (Named as -2g-tmpft2 in models/)
 
+### Tracking Solutions
+
+In the process of beam search, we sort all of the potential states by their model evaluation. I can therefore go through the history of the beam search throughout solving and track the specific path that the solution took through the rankings. I perform this analysis on a selection of 9 beam search histories.  
+
+![](images/rank_vs_steps.png)
+
+
+Note that the first 4 steps are not sorted, so these ranks are effectively random (because no eliminations would be done anyway, so we can save the time of computing the model evaluation). We can see that the model ranks the found solution at roughly 500-1000 for most of the first 15 steps, then this quickly drops to very low values as the end of the solution is approached. Perhaps in future work an alternative to beam search could be implemented to exploit the relatively predictable nature of these paths. 
 ## More Solves
 
 
