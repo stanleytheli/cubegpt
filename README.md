@@ -2,17 +2,19 @@
 
 This project is inspired by the CayleyPy, EfficientCube, and DeepCubeA papers. It is also, very vaguely, inspired by chess engines.
 
-**Table of Contents**
-<br> [Problem](#problem)
+### Sections
+[Problem](#problem)
 <br> [Approach](#approach)
-<br> [Results](#approach)
-<br> [More Solves](#more-solves)
+<br> [Results](#results)
+<br> [More Solve Videos](#more-solves)
 
 ## Problem
+### The 3x3 Rubik's Cube
 The Rubik's Cube presents an interesting challenge for search algorithms. With roughly 4 * 10<sup>19</sup> possible states but only one destination, traditional algorithms that tend to explore a large fraction of state space (like breadth first search, or even A*) are not practically applicable. I have to prune the decision trees *extremely* aggressively if I want to solve Cubes in a realistic amount of time (and using a minimal number of moves to do so). This begs a highly effective heuristic function, which is where machine learning comes in. In this project I investigate whether transformer neural networks can be used to effectively and efficiently solve Rubik's Cubes.
 
 
 ![A scrambled Rubik's Cube with an arrow pointing to a solved Rubik's Cube](images/scrambledArrowSolved.png)
+### Did it work?
 
 My method proves quite effective. For instance, the solver finds the following 19-move solution to the Cube in the above graphic:
 
