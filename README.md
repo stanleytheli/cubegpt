@@ -75,7 +75,7 @@ For this project, a number of models were trained and evaluated. The solver resu
 
 ### Tracking Solutions
 
-In the process of beam search, we sort all of the potential states by their model evaluation. I can therefore go through the history of the beam search throughout solving and track the specific path that the solution took through the rankings. I perform this analysis on a selection of 9 beam search histories.  
+In the process of beam search, the program sorts all of the potential states by their model evaluation. I can therefore go through the history of the beam search throughout solving and track the specific path that the solution took through the rankings. Shown is this analysis on a selection of 9 beam search histories.  
 
 ![](images/rank_vs_steps.png)
 
