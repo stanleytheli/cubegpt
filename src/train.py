@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn
-from utils import *
 
-from model import CubeTransformer
+from utils import *
+from model import *
 from data_generation import *
 
 import time
@@ -37,7 +37,7 @@ def train_batch(X : torch.Tensor,
     return total_loss
 
 
-model = CubeTransformer()
+model = TransformerRegresser()
 # model = nn.DataParallel(model) # If there are multiple GPUs
 loss_fn = nn.MSELoss()
 optim = torch.optim.Adam(model.parameters(), lr=0.0001)
