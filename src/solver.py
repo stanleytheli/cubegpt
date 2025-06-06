@@ -1,15 +1,15 @@
 import torch
 from torch import nn
 from utils import *
-from model import CubeTransformer
+from model import *
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model = CubeTransformer(activation=nn.functional.gelu)
-model.load_state_dict(torch.load("/kaggle/input/cubegpt-2g-family/pytorch/default/1/cubegpt2g-tmpft2.pth", 
+model = TransformerClassifier(activation=nn.functional.gelu)
+model.load_state_dict(torch.load("C:/Users/stanl/cubegpt/models/cubegpt-cls-t51m.pth", 
                                  map_location=torch.device("cuda")))
 model = model.to(device)
-
+model = model.eval()
 
 def beam_step(frontier : list[CubeState], width = 100):
     new_frontier = []
@@ -25,7 +25,8 @@ def beam_step(frontier : list[CubeState], width = 100):
         for b in range(n_batches):
             batch = torch.stack([c.get_tokens().to(device) 
                                     for c in new_frontier[b*batch_size:(b+1)*batch_size]])
-            evaluations = model(batch).detach()
+            with torch.no_grad():
+                evaluations = model.estimate(batch).detach()
 
             # log results for this batch
             for frontier_state, model_eval in zip(new_frontier[b*batch_size:(b+1)*batch_size], 
