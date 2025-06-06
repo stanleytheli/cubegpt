@@ -70,11 +70,12 @@ For this project, a number of models were trained and evaluated. We can see that
 |CubeGPT 2h-mix     | 3.84                         | 5.58               | N/A               | N/A               | N/A                                     |
 |CubeGPT 2h-early   | 3.84                         | 5.02               | N/A               | N/A               | N/A                                     |
 |CubeGPT 2h         | 7.68                         | 4.96               | 81.41%            | 90.71%            | 37.51%                                  |
-|CubeGPT 2h-PFT     | 12.9                         | 4.87               | 81.49%            | 90.94%            |38.06%                               |
+|CubeGPT 2h-PFT     | 12.9                         | 4.87               | 81.49%            | 90.94%            | 38.06%                                  |
 |CubeGPT 2g-early   | 7.68                         | 4.86               | N/A               | N/A               | N/A                                     |
-|CubeGPT 2g         | 15.4                         |  4.68             |  81.93%           | 91.23%            | 37.85%                                  |
-|CubeGPT 2g-PFT     | 26.2                         |  4.70              |82.49%         | 91.37%        | 37.88%                                  |
-|CubeGPT-CLS-t51m   | 51.2                         |**4.33**            |**83.53%**         | **92.15%**        | **42.27%**|
+|CubeGPT 2g         | 15.4                         | 4.68               | 81.93%            | 91.23%            | 37.85%                                  |
+|CubeGPT 2g-PFT     | 26.2                         | 4.70               | 82.49%            | 91.37%            | 37.88%                                  |
+|CubeGPT-CLS-t51m (mode)|51.2                      | 7.12               | 74.38%            | 82.24             | **45.17%**                              |
+|CubeGPT-CLS-t51m (avg)| 51.2                      |**4.33**            |**83.53%**         | **92.15%**        | 42.27%                                  |
 
 <br> **CubeGPT 2h**: Consider this the 'default' or base model, uses basic transformer architecture and ReLU activation. 
 <br> **CubeGPT 2h-mix**: Same architecture as 2h, but trained on both full paths and individual samples. Shows that prematurely training on paths gives worse results. 
@@ -83,7 +84,7 @@ For this project, a number of models were trained and evaluated. We can see that
 <br> **CubeGPT 2g**: Same architecture as 2h, but using GeLU instead of ReLU. (Named as -2g-t2 in models/)
 <br> **CubeGPT 2g-early**: 2g snapshot during training. (Named as -2g in models/)
 <br> **CubeGPT 2g-PFT**: 2g after Path Finetuning. (Named as -2g-tmpft2 in models/)
-<br> **CubeGPT-CLS-t51m**: Classifier model with same architecture as 2g but a classifier head at the end, trained on mountains more data than any other. 
+<br> **CubeGPT-CLS-t51m**: Classifier model with same architecture as 2g but a classifier head at the end, trained on mountains more data than any other. Since it predicts a whole probability distribution, evaluation was done on both the average and modes, represented by the (avg) and (mode) tags. 
 ### Tracking Solutions
 
 In the process of beam search, the program sorts all of the potential states by their model evaluation. I can therefore go through the history of the beam search throughout solving and track the specific path that the solution took through the rankings. Shown is this analysis on a selection of 9 beam search histories.  
