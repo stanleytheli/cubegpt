@@ -74,7 +74,7 @@ For this project, a number of models were trained and evaluated. We can see that
 |CubeGPT 2g-early   | 7.68                         | 4.86               | N/A               | N/A               | N/A                                     |
 |CubeGPT 2g         | 15.4                         | 4.68               | 81.93%            | 91.23%            | 37.85%                                  |
 |CubeGPT 2g-PFT     | 26.2                         | 4.70               | 82.49%            | 91.37%            | 37.88%                                  |
-|CubeGPT-CLS-t51m (mode)|51.2                      | 7.12               | 74.38%            | 82.24             | **45.17%**                              |
+|CubeGPT-CLS-t51m (mode)|51.2                      | 7.12               | 74.38%            | 82.24%            | **45.17%**                              |
 |CubeGPT-CLS-t51m (avg)| 51.2                      |**4.33**            |**83.53%**         | **92.15%**        | 42.27%                                  |
 
 <br> **CubeGPT 2h**: Consider this the 'default' or base model, uses basic transformer architecture and ReLU activation. 
