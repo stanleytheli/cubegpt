@@ -70,8 +70,9 @@ For this project, a number of models were trained and evaluated. We can see that
 |CubeGPT 2h-PFT     | 12.9                         | 4.87               | 81.49%            | 90.94%            | 38.06%                                  |
 |CubeGPT 2g         | 15.4                         | 4.68               | 81.93%            | 91.23%            | 37.85%                                  |
 |CubeGPT 2g-PFT     | 26.2                         | 4.70               | 82.49%            | 91.37%            | 37.88%                                  |
-|CubeGPT-CLS-t51m (mode)|51.2                      | 7.12               | 74.38%            | 82.24%            | **45.17%**                              |
+|CubeGPT 2g-t51m    | 51.2                         | 4.47               | 82.76%            | 91.67%            | 39.37%                                  |
 |CubeGPT-CLS-t51m (avg)| 51.2                      | 4.33               | 83.53%            | 92.15%            | 42.27%                                  |
+|CubeGPT-CLS-t51m (mode)|51.2                      | 7.12               | 74.38%            | 82.24%            | **45.17%**                              |
 |CubeGPT-CLS-t154m (avg)| 153.6                    | 4.33               | 83.29%            | 92.29%            | 42.62%                                  |
 |CubeGPT-CLS-t154mPFT (avg)| 204.8                 | **4.30**           | **83.96%**        | **92.40%**        | 42.50%                                  |
 
@@ -80,7 +81,8 @@ For this project, a number of models were trained and evaluated. We can see that
 <br> **CubeGPT 2h-PFT**: 2h after Path Finetuning. (Named as -2h-morepft in models/)
 <br> **CubeGPT 2g**: Same architecture as 2h, but using GeLU instead of ReLU. (Named as -2g-t2 in models/)
 <br> **CubeGPT 2g-PFT**: 2g after Path Finetuning. (Named as -2g-tmpft2 in models/)
-<br> **CubeGPT-CLS-t51m**: Classifier model with same architecture as 2g but a classifier head at the end, trained on mountains more data than any other. Since it predicts a whole probability distribution, evaluation was done on both the average and modes, represented by the (avg) and (mode) tags. 
+<br> **CubeGPT 2g-t51m**: Same architecture as 2g, trained on 51.2 million examples. Note how this model shows that in the high data limit, regression models are outperformed by classification models. 
+<br> **CubeGPT-CLS-t51m**: Classifier model with same architecture as 2g but a classifier head at the end, trained on 51.2 million examples. Since it predicts a whole probability distribution, evaluation was done on both the average and modes, represented by the (avg) and (mode) tags.
 <br> **CubeGPT-CLS-t154m**: -t51m trained for much longer. Note that progress essentially stagnated. 
 <br> **CubeGPT-CLS-t154mPFT**: -t154m after Path Finetuning. (Named as -t154mpft2 in models/) 
 
