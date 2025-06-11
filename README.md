@@ -60,7 +60,7 @@ For these results, the model CubeGPT-2g-PFT was used. Setting the beam width *w*
 For comparison purposes, elite human solvers typically take 50 to 60 moves to solve a fully scrambled cube. Those optimizing for lower move counts typically lie in the 40 to 50 range. Theoretically, no Cube takes more than 20 optimal moves to solve, and the average Cube takes roughly 17.7. Therefore, an average of 21.1 approaches the theoretical optimal.    
 
 ### Model Results
-For this project, a number of models were trained and evaluated. We can see that adding more data significantly increases model performance (see -t51m compared to lower data models) but saturates (see -t154m having essentially the same results as -t51m). We also see that Path Finetuning reliably improves the model performance, although which specific metrics it improves is a little unpredictable. Solver results were mostly obtained with 2g-PFT. Solve testing is yet to be done with the best model, CLS-t154mPFT.
+For this project, a number of models were trained and evaluated. We can see that adding more data significantly increases model performance (see -t51m compared to lower data models) but saturates (see -t154m having essentially the same results as -t51m). We also see that Path Finetuning reliably improves the model performance, surprisingly even scaling up to being able to improve the high-data models. Solver results were mostly obtained with 2g-PFT. Solve testing is yet to be done with the best model, CLS-t154mPFT.
 
 
 | Model             | Training Examples (Millions) | Mean Squared Error | Within-3-Accuracy | Within-4-Accuracy | Accuracy (When rounding to nearest int) |
